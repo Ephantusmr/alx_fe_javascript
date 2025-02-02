@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (quoteText && quoteCategory) {
                 quotes.push({ text: quoteText, category: quoteCategory });
                 localStorage.setItem('quotes', JSON.stringify(quotes));
+                populateCategories();
                 document.getElementById('quote-text').value = '';
                 document.getElementById('quote-category').value = '';
                 alert('Quote added successfully!');
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (newQuoteText && newQuoteCategory) {
             quotes.push({ text: newQuoteText, category: newQuoteCategory });
             localStorage.setItem('quotes', JSON.stringify(quotes));
+            populateCategories();
             alert('Quote added successfully!');
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
@@ -84,9 +86,47 @@ document.addEventListener('DOMContentLoaded', function () {
             const importedQuotes = JSON.parse(event.target.result);
             quotes.push(...importedQuotes);
             localStorage.setItem('quotes', JSON.stringify(quotes));
+            populateCategories();
             alert('Quotes imported successfully!');
         };
         fileReader.readAsText(event.target.files[0]);
+    }
+
+    // Function to populate categories dynamically
+    function populateCategories() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        const uniqueCategories = [...new Set(quotes.map(quote => quote.category))];
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        uniqueCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        });
+
+        // Restore the last selected category filter from local storage
+        const lastSelectedCategory = localStorage.getItem('lastSelectedCategory');
+        if (lastSelectedCategory) {
+            categoryFilter.value = lastSelectedCategory;
+            filterQuotes();
+        }
+    }
+
+    // Function to filter quotes based on the selected category
+    function filterQuotes() {
+        const selectedCategory = document.getElementById('categoryFilter').value;
+        const filteredQuotes = selectedCategory === 'all' ? quotes : quotes.filter(quote => quote.category === selectedCategory);
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        if (filteredQuotes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+            const randomQuote = filteredQuotes[randomIndex];
+            quoteDisplay.innerHTML = `"${randomQuote.text}" - ${randomQuote.category}`;
+        } else {
+            quoteDisplay.innerHTML = "No quotes available for the selected category.";
+        }
+
+        // Save the selected category filter to local storage
+        localStorage.setItem('lastSelectedCategory', selectedCategory);
     }
 
     // Attach event listener to show new quote button
@@ -95,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Create and display the form for adding new quotes
     createAddQuoteForm();
+
+    // Populate category filter dropdown
+    populateCategories();
 
     // Display a random quote initially
     showRandomQuote();
