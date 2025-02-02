@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('quote-text').value = '';
                 document.getElementById('quote-category').value = '';
                 alert('Quote added successfully!');
-                await syncQuotes(); // Sync quotes after adding a new one
+                await syncWithServer(); // Sync with server after adding a quote
             } else {
                 alert('Please fill in both fields.');
             }
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             alert('Quote added successfully!');
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
-            await syncQuotes(); // Sync quotes after adding a new one
+            await syncWithServer(); // Sync with server after adding a quote
         } else {
             alert('Please fill in both fields.');
         }
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             localStorage.setItem('quotes', JSON.stringify(quotes));
             populateCategories();
             alert('Quotes imported successfully!');
-            await syncQuotes(); // Sync quotes after importing new ones
+            await syncWithServer(); // Sync with server after importing quotes
         };
         fileReader.readAsText(event.target.files[0]);
     }
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         localStorage.setItem('lastSelectedCategory', selectedCategory);
     }
 
-    // Function to sync quotes with the server
-    async function syncQuotes() {
+    // Function to simulate server fetch and post interactions
+    async function syncWithServer() {
         try {
             const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
                 method: 'POST',
