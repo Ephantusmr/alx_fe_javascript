@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('quote-text').value = '';
                 document.getElementById('quote-category').value = '';
                 alert('Quote added successfully!');
+                syncWithServer(); // Sync with server after adding a quote
             } else {
                 alert('Please fill in both fields.');
             }
@@ -62,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Quote added successfully!');
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
+            syncWithServer(); // Sync with server after adding a quote
         } else {
             alert('Please fill in both fields.');
         }
@@ -88,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('quotes', JSON.stringify(quotes));
             populateCategories();
             alert('Quotes imported successfully!');
+            syncWithServer(); // Sync with server after importing quotes
         };
         fileReader.readAsText(event.target.files[0]);
     }
@@ -127,6 +130,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Save the selected category filter to local storage
         localStorage.setItem('lastSelectedCategory', selectedCategory);
+    }
+
+    // Function to simulate server fetch and post interactions
+    function syncWithServer() {
+        fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(quotes)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Quotes synced with server:', data);
+            // Simulate fetching updates from the server and resolving conflicts
+            fetch('https://jsonplaceholder.typicode.com/posts')
+                .then(response => response.json())
+                .then(serverQuotes => {
+                    resolveConflicts(serverQuotes);
+                });
+        })
+        .catch(error => {
+            console.error('Error syncing with server:', error);
+        });
+    }
+
+    // Function to resolve conflicts by taking the server's data precedence
+    function resolveConflicts(serverQuotes) {
+        const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+        const combinedQuotes = [...serverQuotes, ...localQuotes];
+        const uniqueCombinedQuotes = combinedQuotes.filter((quote, index, self) =>
+            index === self.findIndex(q => q.text === quote.text)
+        );
+        localStorage.setItem('quotes', JSON.stringify(uniqueCombinedQuotes));
+        populateCategories();
+        alert('Conflicts resolved. Data synchronized with server.');
     }
 
     // Attach event listener to show new quote button
