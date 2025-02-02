@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
             const data = await response.json();
             console.log('Quotes synced with server:', data);
+            alert('Quotes synced with server!');
             await fetchQuotesFromServer(); // Fetch updates from server after syncing
         } catch (error) {
             console.error('Error syncing with server:', error);
