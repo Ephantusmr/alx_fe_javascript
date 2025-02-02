@@ -107,16 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listener for JSON export
-    const exportButton = document.createElement('button');
-    exportButton.textContent = 'Export Quotes';
+    const exportButton = document.getElementById('exportQuotes');
     exportButton.addEventListener('click', exportToJsonFile);
-    document.body.appendChild(exportButton);
-
-    // Event listener for JSON import
-    const importFileInput = document.createElement('input');
-    importFileInput.type = 'file';
-    importFileInput.id = 'importFile';
-    importFileInput.accept = '.json';
-    importFileInput.addEventListener('change', importFromJsonFile);
-    document.body.appendChild(importFileInput);
 });
