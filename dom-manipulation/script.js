@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('quote-text').value = '';
                 document.getElementById('quote-category').value = '';
                 alert('Quote added successfully!');
-                await syncWithServer(); // Sync with server after adding a quote
+                await syncQuotes(); // Sync quotes after adding a new one
             } else {
                 alert('Please fill in both fields.');
             }
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             alert('Quote added successfully!');
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
-            await syncWithServer(); // Sync with server after adding a quote
+            await syncQuotes(); // Sync quotes after adding a new one
         } else {
             alert('Please fill in both fields.');
         }
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             localStorage.setItem('quotes', JSON.stringify(quotes));
             populateCategories();
             alert('Quotes imported successfully!');
-            await syncWithServer(); // Sync with server after importing quotes
+            await syncQuotes(); // Sync quotes after importing new ones
         };
         fileReader.readAsText(event.target.files[0]);
     }
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         localStorage.setItem('lastSelectedCategory', selectedCategory);
     }
 
-    // Function to simulate server fetch and post interactions
-    async function syncWithServer() {
+    // Function to sync quotes with the server
+    async function syncQuotes() {
         try {
             const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
                 method: 'POST',
@@ -172,6 +172,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         populateCategories();
         alert('Conflicts resolved. Data synchronized with server.');
     }
+
+    // Periodically sync quotes with the server every 5 minutes
+    setInterval(syncQuotes, 5 * 60 * 1000);
 
     // Attach event listener to show new quote button
     const showQuoteButton = document.getElementById('newQuote');
