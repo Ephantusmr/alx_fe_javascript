@@ -144,16 +144,23 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             console.log('Quotes synced with server:', data);
-            // Simulate fetching updates from the server and resolving conflicts
-            fetch('https://jsonplaceholder.typicode.com/posts')
-                .then(response => response.json())
-                .then(serverQuotes => {
-                    resolveConflicts(serverQuotes);
-                });
+            fetchQuotesFromServer(); // Fetch updates from server after syncing
         })
         .catch(error => {
             console.error('Error syncing with server:', error);
         });
+    }
+
+    // Function to fetch quotes from the server
+    function fetchQuotesFromServer() {
+        fetch('https://jsonplaceholder.typicode.com/posts')
+            .then(response => response.json())
+            .then(serverQuotes => {
+                resolveConflicts(serverQuotes);
+            })
+            .catch(error => {
+                console.error('Error fetching quotes from server:', error);
+            });
     }
 
     // Function to resolve conflicts by taking the server's data precedence
