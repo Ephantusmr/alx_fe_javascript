@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // Load quotes from local storage or use default quotes
     const quotes = JSON.parse(localStorage.getItem('quotes')) || [
         { text: "Life is what happens when you're busy making other plans.", category: "Life" },
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(formContainer);
 
         const addQuoteForm = document.getElementById('add-quote-form');
-        addQuoteForm.addEventListener('submit', function(event) {
+        addQuoteForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             const quoteText = document.getElementById('quote-text').value.trim();
             const quoteCategory = document.getElementById('quote-category').value.trim();
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('quote-text').value = '';
                 document.getElementById('quote-category').value = '';
                 alert('Quote added successfully!');
-                syncWithServer(); // Sync with server after adding a quote
+                await syncWithServer(); // Sync with server after adding a quote
             } else {
                 alert('Please fill in both fields.');
             }
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to add a new quote
-    function addQuote() {
+    async function addQuote() {
         const newQuoteText = document.getElementById('newQuoteText').value.trim();
         const newQuoteCategory = document.getElementById('newQuoteCategory').value.trim();
 
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Quote added successfully!');
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
-            syncWithServer(); // Sync with server after adding a quote
+            await syncWithServer(); // Sync with server after adding a quote
         } else {
             alert('Please fill in both fields.');
         }
@@ -82,15 +82,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to import quotes from a JSON file
-    function importFromJsonFile(event) {
+    async function importFromJsonFile(event) {
         const fileReader = new FileReader();
-        fileReader.onload = function(event) {
+        fileReader.onload = async function(event) {
             const importedQuotes = JSON.parse(event.target.result);
             quotes.push(...importedQuotes);
             localStorage.setItem('quotes', JSON.stringify(quotes));
             populateCategories();
             alert('Quotes imported successfully!');
-            syncWithServer(); // Sync with server after importing quotes
+            await syncWithServer(); // Sync with server after importing quotes
         };
         fileReader.readAsText(event.target.files[0]);
     }
@@ -133,34 +133,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to simulate server fetch and post interactions
-    function syncWithServer() {
-        fetch('https://jsonplaceholder.typicode.com/posts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(quotes)
-        })
-        .then(response => response.json())
-        .then(data => {
+    async function syncWithServer() {
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(quotes)
+            });
+            const data = await response.json();
             console.log('Quotes synced with server:', data);
-            fetchQuotesFromServer(); // Fetch updates from server after syncing
-        })
-        .catch(error => {
+            await fetchQuotesFromServer(); // Fetch updates from server after syncing
+        } catch (error) {
             console.error('Error syncing with server:', error);
-        });
+        }
     }
 
     // Function to fetch quotes from the server
-    function fetchQuotesFromServer() {
-        fetch('https://jsonplaceholder.typicode.com/posts')
-            .then(response => response.json())
-            .then(serverQuotes => {
-                resolveConflicts(serverQuotes);
-            })
-            .catch(error => {
-                console.error('Error fetching quotes from server:', error);
-            });
+    async function fetchQuotesFromServer() {
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+            const serverQuotes = await response.json();
+            resolveConflicts(serverQuotes);
+        } catch (error) {
+            console.error('Error fetching quotes from server:', error);
+        }
     }
 
     // Function to resolve conflicts by taking the server's data precedence
